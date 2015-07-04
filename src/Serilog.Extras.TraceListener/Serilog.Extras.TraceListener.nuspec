@@ -3,12 +3,11 @@
   <metadata>
     <id>Serilog.Extras.TraceListener</id>
     <version>$version$</version>
-    <authors>Serilog Contributors</authors>
+    <authors>SerilogTraceListener Contributors</authors>
     <description>Provides a System.Diagnostics.TraceListener implementation that outputs to Serilog.</description>
     <language>en-US</language>
-    <projectUrl>http://serilog.net</projectUrl>
+    <projectUrl>https://github.com/serilog-trace-listener/SerilogTraceListener</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <iconUrl>http://serilog.net/images/serilog-nuget.png</iconUrl>
     <tags>serilog logging diagnostics tracing TraceListener</tags>
     <dependencies>
       <dependency id="Serilog" version="$version$" />
