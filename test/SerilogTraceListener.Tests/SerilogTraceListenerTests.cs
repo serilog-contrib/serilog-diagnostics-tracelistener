@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using NUnit.Framework;
+using Serilog;
 using Serilog.Events;
 using Serilog.Tests.Support;
 
-namespace Serilog.Extras.TraceListener.Tests
+namespace SerilogTraceListener.Tests
 {
     [TestFixture]
     public class SerilogTraceListenerTests
@@ -16,7 +17,7 @@ namespace Serilog.Extras.TraceListener.Tests
         readonly string _source = Some.String("source");
         readonly TraceEventCache _traceEventCache = new TraceEventCache();
 
-        SerilogTraceListener _traceListener;
+        global::SerilogTraceListener.SerilogTraceListener _traceListener;
         LogEvent _loggedEvent;
 
         [SetUp]
@@ -26,7 +27,7 @@ namespace Serilog.Extras.TraceListener.Tests
             var logger = new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Sink(delegatingSink).CreateLogger();
 
             _loggedEvent = null;
-            _traceListener = new SerilogTraceListener(logger);
+            _traceListener = new global::SerilogTraceListener.SerilogTraceListener(logger);
         }
 
         [TearDown]
@@ -42,7 +43,7 @@ namespace Serilog.Extras.TraceListener.Tests
 
             LogEventAssert.HasMessage(_message, _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
-            LogEventAssert.HasPropertyValue(typeof(SerilogTraceListener).ToString(), "SourceContext", _loggedEvent);
+            LogEventAssert.HasPropertyValue(typeof(global::SerilogTraceListener.SerilogTraceListener).ToString(), "SourceContext", _loggedEvent);
         }
 
         [Test]

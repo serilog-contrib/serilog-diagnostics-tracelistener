@@ -7,8 +7,8 @@
     <ProjectGuid>{956ED9D7-DC59-4A46-AC32-A255AEAD383B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Serilog</RootNamespace>
-    <AssemblyName>Serilog.Extras.TraceListener</AssemblyName>
+    <RootNamespace>SerilogTraceListener</RootNamespace>
+    <AssemblyName>SerilogTraceListener</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -58,11 +58,11 @@
     </Compile>
     <Compile Include="Core\Pipeline\SilentLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Extras\TraceListener\SerilogTraceListener.cs" />
+    <Compile Include="SerilogTraceListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Serilog.Extras.TraceListener.nuspec" />
+    <None Include="SerilogTraceListener.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

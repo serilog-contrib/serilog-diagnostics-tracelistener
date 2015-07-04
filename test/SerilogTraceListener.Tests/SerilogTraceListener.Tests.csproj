@@ -7,8 +7,8 @@
     <ProjectGuid>{FEC03AF0-D6C1-4987-8938-C142D93362D7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Serilog</RootNamespace>
-    <AssemblyName>Serilog.Extras.TraceListener.Tests</AssemblyName>
+    <RootNamespace>SerilogTraceListener.Tests</RootNamespace>
+    <AssemblyName>SerilogTraceListener.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -55,16 +55,16 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extras\TraceListener\SerilogTraceListenerSeverityConversionTests.cs" />
-    <Compile Include="Extras\TraceListener\SerilogTraceListenerTests.cs" />
+    <Compile Include="SerilogTraceListenerSeverityConversionTests.cs" />
+    <Compile Include="SerilogTraceListenerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Serilog.Extras.TraceListener\Serilog.Extras.TraceListener.csproj">
+    <ProjectReference Include="..\..\src\SerilogTraceListener\SerilogTraceListener.csproj">
       <Project>{956ED9D7-DC59-4A46-AC32-A255AEAD383B}</Project>
-      <Name>Serilog.Extras.TraceListener</Name>
+      <Name>SerilogTraceListener</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

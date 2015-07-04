@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 
-namespace Serilog.Extras.TraceListener.Tests
+namespace SerilogTraceListener.Tests
 {
     [TestFixture]
     public class SerilogTraceListenerSeverityConversionTests
@@ -14,7 +14,7 @@ namespace Serilog.Extras.TraceListener.Tests
         [Test]
         public void CanConvertAnyTraceEventType([ValueSource("allTraceEventTypes")] TraceEventType sourceType)
         {
-            TestDelegate act = () => SerilogTraceListener.ToLogEventLevel(sourceType);
+            TestDelegate act = () => global::SerilogTraceListener.SerilogTraceListener.ToLogEventLevel(sourceType);
 
             Assert.DoesNotThrow(act);
         }

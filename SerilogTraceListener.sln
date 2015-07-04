@@ -5,11 +5,11 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{71482400-295F-4F68-BBF4-ACA4F7ECADCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Extras.TraceListener", "src\Serilog.Extras.TraceListener\Serilog.Extras.TraceListener.csproj", "{956ED9D7-DC59-4A46-AC32-A255AEAD383B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerilogTraceListener", "src\SerilogTraceListener\SerilogTraceListener.csproj", "{956ED9D7-DC59-4A46-AC32-A255AEAD383B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BCEAE383-9CFF-4087-A23E-351688CD865E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Extras.TraceListener.Tests", "test\Serilog.Extras.TraceListener.Tests\Serilog.Extras.TraceListener.Tests.csproj", "{FEC03AF0-D6C1-4987-8938-C142D93362D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerilogTraceListener.Tests", "test\SerilogTraceListener.Tests\SerilogTraceListener.Tests.csproj", "{FEC03AF0-D6C1-4987-8938-C142D93362D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

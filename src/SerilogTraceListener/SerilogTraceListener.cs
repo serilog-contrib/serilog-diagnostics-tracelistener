@@ -15,15 +15,16 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using Serilog;
 using Serilog.Core.Pipeline;
 using Serilog.Events;
 
-namespace Serilog.Extras.TraceListener
+namespace SerilogTraceListener
 {
     /// <summary>
     ///     TraceListener implementation that directs all output to Serilog.
     /// </summary>
-    public class SerilogTraceListener : System.Diagnostics.TraceListener
+    public class SerilogTraceListener : TraceListener
     {
         const LogEventLevel FailLevel = LogEventLevel.Fatal;
         const LogEventLevel DefaultLogLevel = LogEventLevel.Debug;

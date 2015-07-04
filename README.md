@@ -1,5 +1,5 @@
-# Serilog.Extras.TraceListener
+# SerilogTraceListener
 
 Provides a System.Diagnostics.TraceListener implementation that outputs to Serilog.
 
-**Package** - [Serilog.Extras.TraceListener]
+**Package** - [SerilogTraceListener]
