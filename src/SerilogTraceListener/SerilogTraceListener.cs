@@ -57,6 +57,18 @@ namespace SerilogTraceListener
             this.logger = logger.ForContext<SerilogTraceListener>();
         }
 
+        /// <summary>
+        ///     Creates a SerilogTraceListener for the context specified.
+        ///     <listeners>
+        ///         <add name="Serilog" type="SerilogTraceListener.SerilogTraceListener, SerilogTraceListener" initializeData="MyContext" />
+        ///     </listeners>
+
+        /// </summary>
+        public SerilogTraceListener(string context)
+        {
+            this.logger = Log.Logger.ForContext("SourceContext", context);
+        }
+
         public override bool IsThreadSafe
         {
             get { return true; }
