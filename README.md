@@ -2,11 +2,11 @@
 
 This library provides a `System.Diagnostics.TraceListener` implementation that outputs to Serilog. This means that output from third-party libraries using `System.Diagnostics.Trace` can be collected through the Serilog pipeline.
 
-## Getting started
+### Getting started
 
 Before using this package, [Serilog](http://serilog.net) needs to be installed and configured in the application.
 
-## Installing from NuGet
+### Installing from NuGet
 
 The package on NuGet is _SerilogTraceListener_:
 
@@ -14,7 +14,7 @@ The package on NuGet is _SerilogTraceListener_:
 Install-Package SerilogTraceListener -DependencyVersion Highest
 ```
 
-## Enabling the listener (code)
+### Enabling the listener (code)
 
 After configuring Serilog, create a `SerilogTraceListener` and add it to the `System.Diagnostics.Trace.Listeners` collection:
 
@@ -29,7 +29,7 @@ This will write the events through the static `Log` class. Alternatively, a spec
 var listener = new SerilogTraceListener.SerilogTraceListener();
 ```
 
-## Enabling the listener (XML)
+### Enabling the listener (XML)
 
 To enable the listener through XML in `App.config` or `Web.config`, add it to the `system.diagnostics/trace/listeners` collection:
 
