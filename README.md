@@ -19,7 +19,7 @@ Install-Package SerilogTraceListener -DependencyVersion Highest
 After configuring Serilog, create a `SerilogTraceListener` and add it to the `System.Diagnostics.Trace.Listeners` collection:
 
 ```csharp
-var listener = new SerilogTraceListener.SerilogTraceListener();
+var listener = new global::SerilogTraceListener.SerilogTraceListener();
 Trace.Listeners.Add(listener);
 ```
 
