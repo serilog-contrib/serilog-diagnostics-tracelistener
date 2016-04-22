@@ -2,6 +2,8 @@
 
 This library provides a `System.Diagnostics.TraceListener` implementation that outputs to Serilog. This means that output from third-party libraries using `System.Diagnostics.Trace` can be collected through the Serilog pipeline.
 
+**Important note** - NuGet package publishing is currently broken, please bear with us while we get this sorted out (#5).
+
 ### Getting started
 
 Before using this package, [Serilog](http://serilog.net) needs to be installed and configured in the application.
