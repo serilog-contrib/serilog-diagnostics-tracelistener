@@ -137,7 +137,7 @@ namespace SerilogTraceListener
 
         public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
         {
-            TraceEvent(eventCache, source, eventType, id, string.Format(CultureInfo.InvariantCulture, format, args));
+            TraceEvent(eventCache, source, eventType, id, string.Format(CultureInfo.InvariantCulture, format, args?? new object[0]));
         }
 
         void WriteEvent(TraceEventCache eventCache, TraceEventType eventType, string messageTemplate, params object[] propertyValues)

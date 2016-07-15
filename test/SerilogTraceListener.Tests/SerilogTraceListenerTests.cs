@@ -275,5 +275,19 @@ namespace SerilogTraceListener.Tests
                 data3
             }, "TraceData", _loggedEvent);
         }
+
+        [Test]
+        public void CanLogFromTraceSourceInformation()
+        {
+            var logMessage = "a simple message";
+            var traceSource = new TraceSource("test", SourceLevels.All);
+            traceSource.Listeners.Clear();
+            traceSource.Listeners.Add(_traceListener);
+
+            traceSource.TraceInformation(logMessage);
+
+            LogEventAssert.HasLevel(LogEventLevel.Information, _loggedEvent);
+            LogEventAssert.HasPropertyValue(logMessage, "TraceMessage", _loggedEvent);
+        }
     }
 }
