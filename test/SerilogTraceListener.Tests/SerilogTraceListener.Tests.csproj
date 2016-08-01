@@ -30,10 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\assets\Serilog.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>SerilogTraceListener.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
@@ -58,6 +58,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="SerilogTraceListener.snk" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SerilogTraceListener\SerilogTraceListener.csproj">
