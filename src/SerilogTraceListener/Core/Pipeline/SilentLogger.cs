@@ -378,7 +378,7 @@ namespace Serilog.Core.Pipeline
         public bool BindProperty(string propertyName, object value, bool destructureObjects,
             out LogEventProperty property)
         {
-            property = new LogEventProperty(string.Empty, new ScalarValue(string.Empty));
+            property = new LogEventProperty(propertyName, new ScalarValue(string.Empty));
             return false;
         }
     }

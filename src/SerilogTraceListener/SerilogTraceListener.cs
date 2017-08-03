@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Diagnostics;
-using System.Globalization;
 using Serilog;
 using Serilog.Core.Pipeline;
 using Serilog.Events;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace SerilogTraceListener
 {
@@ -26,16 +27,18 @@ namespace SerilogTraceListener
     /// </summary>
     public class SerilogTraceListener : TraceListener
     {
-        const LogEventLevel FailLevel = LogEventLevel.Fatal;
+        const string ActivityIdProperty = "ActivityId";
+        const string CategoryProperty = "Category";
+        const string EventIdProperty = "TraceEventId";
+        const string FailDetailMessageProperty = "FailDetails";
+        const string RelatedActivityIdProperty = "RelatedActivityId";
+        const string SourceProperty = "TraceSource";
+        const string TraceDataProperty = "TraceData";
+        const string TraceEventTypeProperty = "TraceEventType";
         const LogEventLevel DefaultLogLevel = LogEventLevel.Debug;
+        const LogEventLevel FailLevel = LogEventLevel.Fatal;
         const string MessagelessTraceEventMessageTemplate = "{TraceSource:l} {TraceEventType}: {TraceEventId}";
-        const string MesageMessageTemplate = "{TraceMessage:l}";
-        const string MessageWithCategoryMessageTemplate = "{Category:l}: {TraceMessage:l}";
-        const string FailMessageTemplate = "Fail: {TraceMessage:l}";
-        const string DetailedFailMessageTemplate = "Fail: {TraceMessage:l} {FailDetails:l}";
-        static readonly string TraceDataMessageTemplate = "{TraceSource:l} {TraceEventType}: {TraceEventId} :" + Environment.NewLine + "{TraceData:l}";
-        static readonly string TraceEventMessageTemplate = "{TraceSource:l} {TraceEventType}: {TraceEventId} :" + Environment.NewLine + "{TraceMessage:l}";
-        static readonly string TraceTransferMessageTemplate = "{TraceSource:l} {TraceEventType}: {TraceEventId} :" + Environment.NewLine + "{TraceMessage:l}, relatedActivityId={RelatedActivityId}";
+        const string TraceDataMessageTemplate = "{TraceData}";
         ILogger logger;
 
         /// <summary>
@@ -74,14 +77,90 @@ namespace SerilogTraceListener
             get { return true; }
         }
 
+        public override void Close()
+        {
+            logger = new SilentLogger();
+            base.Close();
+        }
+
+        public override void Fail(string message)
+        {
+            var properties = CreateFailProperties();
+            Write(FailLevel, null, message, properties);
+        }
+
+        public override void Fail(string message, string detailMessage)
+        {
+            var properties = CreateFailProperties();
+            SafeAddProperty(properties, FailDetailMessageProperty, detailMessage);
+            Write(FailLevel, null, message, properties);
+        }
+
+        public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
+        {
+            var properties = CreateTraceProperties(source, TraceEventType.Transfer, id);
+            WriteData(eventType, properties, data);
+        }
+
+        public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
+        {
+            var properties = CreateTraceProperties(source, TraceEventType.Transfer, id);
+            WriteData(eventType, properties, data);
+        }
+
+        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id)
+        {
+            var properties = CreateTraceProperties(source, eventType, id);
+            Write(eventType, null, MessagelessTraceEventMessageTemplate, properties);
+        }
+
+        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)
+        {
+            var properties = CreateTraceProperties(source, eventType, id);
+            Write(eventType, null, message, properties);
+        }
+
+        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
+        {
+            var properties = CreateTraceProperties(source, eventType, id);
+            Exception exception;
+            AddFormatArgs(properties, args, out exception);
+            Write(eventType, exception, format, properties);
+        }
+
+        public override void TraceTransfer(TraceEventCache eventCache, string source, int id, string message, Guid relatedActivityId)
+        {
+            var properties = CreateTraceProperties(source, TraceEventType.Transfer, id);
+            SafeAddProperty(properties, RelatedActivityIdProperty, relatedActivityId);
+            Write(TraceEventType.Transfer, null, message, properties);
+        }
+
+        public override void Write(object data)
+        {
+            var properties = CreateProperties();
+            SafeAddProperty(properties, TraceDataProperty, data);
+            Write(DefaultLogLevel, null, TraceDataMessageTemplate, properties);
+        }
+
         public override void Write(string message)
         {
-            logger.Write(DefaultLogLevel, MesageMessageTemplate, message);
+            var properties = CreateProperties();
+            Write(DefaultLogLevel, null, message, properties);
+        }
+
+        public override void Write(object data, string category)
+        {
+            var properties = CreateProperties();
+            SafeAddProperty(properties, TraceDataProperty, data);
+            SafeAddProperty(properties, CategoryProperty, category);
+            Write(DefaultLogLevel, null, TraceDataMessageTemplate, properties);
         }
 
         public override void Write(string message, string category)
         {
-            logger.Write(DefaultLogLevel, MessageWithCategoryMessageTemplate, category, message);
+            var properties = CreateProperties();
+            SafeAddProperty(properties, CategoryProperty, category);
+            Write(DefaultLogLevel, null, message, properties);
         }
 
         public override void WriteLine(string message)
@@ -89,62 +168,96 @@ namespace SerilogTraceListener
             Write(message);
         }
 
+        public override void WriteLine(object data)
+        {
+            Write(data);
+        }
+
         public override void WriteLine(string message, string category)
         {
             Write(message, category);
         }
 
-        public override void Fail(string message)
+        public override void WriteLine(object data, string category)
         {
-            logger.Write(FailLevel, FailMessageTemplate, message);
+            Write(data, category);
         }
 
-        public override void Fail(string message, string detailMessage)
+        private void AddFormatArgs(IList<LogEventProperty> properties, object[] args, out Exception exception)
         {
-            logger.Write(FailLevel, DetailedFailMessageTemplate, message, detailMessage);
+            exception = null;
+            if (args != null)
+            {
+                for (var argIndex = 0; argIndex < args.Length; argIndex++)
+                {
+                    SafeAddProperty(properties, argIndex.ToString(CultureInfo.InvariantCulture), args[argIndex]);
+                    // If there is any argument of type Exception (last wins), then use it
+                    if (args[argIndex] is Exception)
+                    {
+                        exception = (Exception)args[argIndex];
+                    }
+                }
+            }
         }
 
-        public override void Close()
+        private IList<LogEventProperty> CreateFailProperties()
         {
-            logger = new SilentLogger();
-            base.Close();
+            var properties = CreateProperties();
+            SafeAddProperty(properties, TraceEventTypeProperty, "Fail");
+            return properties;
         }
 
-        public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
+        private IList<LogEventProperty> CreateProperties()
         {
-            WriteEvent(eventCache, eventType, TraceDataMessageTemplate, source, eventType, id, data);
+            var properties = new List<LogEventProperty>();
+            SafeAddProperty(properties, ActivityIdProperty, Trace.CorrelationManager.ActivityId);
+            return properties;
         }
 
-        public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
+        private IList<LogEventProperty> CreateTraceProperties(string source, TraceEventType eventType, int id)
         {
-            WriteEvent(eventCache, eventType, TraceDataMessageTemplate, source, eventType, id, data);
+            var properties = CreateProperties();
+            SafeAddProperty(properties, SourceProperty, source);
+            SafeAddProperty(properties, TraceEventTypeProperty, eventType);
+            SafeAddProperty(properties, EventIdProperty, id);
+            return properties;
         }
 
-        public override void TraceTransfer(TraceEventCache eventCache, string source, int id, string message, Guid relatedActivityId)
+        private void SafeAddProperty(IList<LogEventProperty> properties, string name, object value)
         {
-            WriteEvent(eventCache, TraceEventType.Transfer, TraceTransferMessageTemplate, source, TraceEventType.Transfer, id, message, relatedActivityId);
+            LogEventProperty property;
+            if (logger.BindProperty(name, value, false, out property))
+            {
+                properties.Add(property);
+            }
         }
 
-        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id)
+        private void Write(TraceEventType eventType, Exception exception, string messageTemplate, IList<LogEventProperty> properties)
         {
-            WriteEvent(eventCache, eventType, MessagelessTraceEventMessageTemplate, source, eventType, id);
+            var level = ToLogEventLevel(eventType);
+            Write(level, exception, messageTemplate, properties);
         }
 
-        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)
+        private void Write(LogEventLevel level, Exception exception, string messageTemplate, IList<LogEventProperty> properties)
         {
-            WriteEvent(eventCache, eventType, TraceEventMessageTemplate, source, eventType, id, message);
+            // If user has passed null, then still log (as an empty message)
+            if (messageTemplate == null)
+            {
+                messageTemplate = string.Empty;
+            }
+            MessageTemplate parsedTemplate;
+            IEnumerable<LogEventProperty> boundProperties;
+            // boundProperties will be empty and can be ignored
+            logger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties);
+            var logEvent = new LogEvent(DateTimeOffset.UtcNow, level, exception, parsedTemplate, properties);
+            logger.Write(logEvent);
         }
 
-        public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
+        private void WriteData(TraceEventType eventType, IList<LogEventProperty> properties, object data)
         {
-            TraceEvent(eventCache, source, eventType, id, string.Format(CultureInfo.InvariantCulture, format, args?? new object[0]));
-        }
-
-        void WriteEvent(TraceEventCache eventCache, TraceEventType eventType, string messageTemplate, params object[] propertyValues)
-        {
-            LogEventLevel level = ToLogEventLevel(eventType);
-
-            logger.Write(level, messageTemplate, propertyValues);
+            var level = ToLogEventLevel(eventType);
+            SafeAddProperty(properties, TraceDataProperty, data);
+            Write(level, null, TraceDataMessageTemplate, properties);
         }
 
         internal static LogEventLevel ToLogEventLevel(TraceEventType eventType)
@@ -152,29 +265,29 @@ namespace SerilogTraceListener
             switch (eventType)
             {
                 case TraceEventType.Critical:
-                {
-                    return LogEventLevel.Fatal;
-                }
+                    {
+                        return LogEventLevel.Fatal;
+                    }
                 case TraceEventType.Error:
-                {
-                    return LogEventLevel.Error;
-                }
+                    {
+                        return LogEventLevel.Error;
+                    }
                 case TraceEventType.Information:
-                {
-                    return LogEventLevel.Information;
-                }
+                    {
+                        return LogEventLevel.Information;
+                    }
                 case TraceEventType.Warning:
-                {
-                    return LogEventLevel.Warning;
-                }
+                    {
+                        return LogEventLevel.Warning;
+                    }
                 case TraceEventType.Verbose:
-                {
-                    return LogEventLevel.Verbose;
-                }
+                    {
+                        return LogEventLevel.Verbose;
+                    }
                 default:
-                {
-                    return LogEventLevel.Debug;
-                }
+                    {
+                        return LogEventLevel.Debug;
+                    }
             }
         }
     }

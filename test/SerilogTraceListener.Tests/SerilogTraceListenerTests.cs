@@ -1,9 +1,10 @@
-﻿using System;
-using System.Diagnostics;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Serilog;
 using Serilog.Events;
 using Serilog.Tests.Support;
+using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace SerilogTraceListener.Tests
 {
@@ -51,28 +52,44 @@ namespace SerilogTraceListener.Tests
         {
             _traceListener.Write(_message, _category);
 
-            LogEventAssert.HasMessage(string.Format("{0}: {1}", _category, _message), _loggedEvent);
+            LogEventAssert.HasMessage(_message, _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
             LogEventAssert.HasPropertyValue(_category, "Category", _loggedEvent);
         }
 
         [Test]
-        public void CapturesWriteOfObjectUsingToString()
+        public void CapturesWriteOfObject()
         {
             var writtenObject = Tuple.Create(Some.String());
             _traceListener.Write(writtenObject);
 
-            LogEventAssert.HasMessage(writtenObject.ToString(), _loggedEvent);
+            LogEventAssert.HasMessage("\"" + writtenObject.ToString() + "\"", _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
         }
 
         [Test]
-        public void CapturesWriteOfObjectUsingToStringWithCategory()
+        public void WriteOfObjectHasTraceDataProperty()
+        {
+            var writtenObject = new int[] {
+                Some.Int(),
+                Some.Int()
+            };
+            _traceListener.Write(writtenObject);
+
+            LogEventAssert.HasMessage(string.Format("[{0}, {1}]", writtenObject[0], writtenObject[1]), _loggedEvent);
+            LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
+
+            var sequence = ((SequenceValue)_loggedEvent.Properties["TraceData"]).Elements.Select(pv => pv.LiteralValue());
+            Assert.That(sequence, Is.EquivalentTo(writtenObject), "The property value was not as expected");
+        }
+
+        [Test]
+        public void CapturesWriteOfObjectWithCategory()
         {
             var writtenObject = Tuple.Create(Some.String());
             _traceListener.Write(writtenObject, _category);
 
-            LogEventAssert.HasMessage(string.Format("{0}: {1}", _category, writtenObject), _loggedEvent);
+            LogEventAssert.HasMessage("\"" + writtenObject.ToString() + "\"", _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
             LogEventAssert.HasPropertyValue(_category, "Category", _loggedEvent);
         }
@@ -91,28 +108,28 @@ namespace SerilogTraceListener.Tests
         {
             _traceListener.WriteLine(_message, _category);
 
-            LogEventAssert.HasMessage(string.Format("{0}: {1}", _category, _message), _loggedEvent);
+            LogEventAssert.HasMessage(_message, _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
             LogEventAssert.HasPropertyValue(_category, "Category", _loggedEvent);
         }
 
         [Test]
-        public void CapturesWriteLineOfObjectUsingToString()
+        public void CapturesWriteLineOfObject()
         {
             var writtenObject = Tuple.Create(Some.String());
             _traceListener.WriteLine(writtenObject);
 
-            LogEventAssert.HasMessage(writtenObject.ToString(), _loggedEvent);
+            LogEventAssert.HasMessage("\"" + writtenObject.ToString() + "\"", _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
         }
 
         [Test]
-        public void CapturesWriteLineOfObjectUsingToStringWithCategory()
+        public void CapturesWriteLineOfObjectWithCategory()
         {
             var writtenObject = Tuple.Create(Some.String());
             _traceListener.WriteLine(writtenObject, _category);
 
-            LogEventAssert.HasMessage(string.Format("{0}: {1}", _category, writtenObject), _loggedEvent);
+            LogEventAssert.HasMessage("\"" + writtenObject.ToString() + "\"", _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
             LogEventAssert.HasPropertyValue(_category, "Category", _loggedEvent);
         }
@@ -122,7 +139,7 @@ namespace SerilogTraceListener.Tests
         {
             _traceListener.Fail(_message);
 
-            LogEventAssert.HasMessage("Fail: " + _message, _loggedEvent);
+            LogEventAssert.HasMessage(_message, _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Fatal, _loggedEvent);
         }
 
@@ -133,7 +150,7 @@ namespace SerilogTraceListener.Tests
 
             _traceListener.Fail(_message, detailMessage);
 
-            LogEventAssert.HasMessage(string.Format("Fail: {0} {1}", _message, detailMessage), _loggedEvent);
+            LogEventAssert.HasMessage(_message, _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Fatal, _loggedEvent);
             LogEventAssert.HasPropertyValue(detailMessage, "FailDetails", _loggedEvent);
         }
@@ -167,12 +184,8 @@ namespace SerilogTraceListener.Tests
         {
             _traceListener.TraceEvent(_traceEventCache, _source, WarningEventType, _id, _message);
 
-            LogEventAssert.HasMessage(
-                string.Format("{0} {1}: {2} :" + Environment.NewLine + "{3}", _source, WarningEventType, _id, _message),
-                _loggedEvent);
-
+            LogEventAssert.HasMessage(_message, _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Warning, _loggedEvent);
-
             LogEventAssert.HasPropertyValue(_id, "TraceEventId", _loggedEvent);
             LogEventAssert.HasPropertyValue(_source, "TraceSource", _loggedEvent);
             LogEventAssert.HasPropertyValue(WarningEventType, "TraceEventType", _loggedEvent);
@@ -184,22 +197,21 @@ namespace SerilogTraceListener.Tests
             const string format = "{0}-{1}-{2}";
             var args = new object[]
             {
-                Some.String(),
-                Some.String(),
-                Some.String()
+                Some.Int(),
+                Some.Int(),
+                Some.Int()
             };
 
             _traceListener.TraceEvent(_traceEventCache, _source, WarningEventType, _id, format, args);
 
-            LogEventAssert.HasMessage(
-                string.Format("{0} {1}: {2} :" + Environment.NewLine + "{3}", _source, WarningEventType, _id, string.Format(format, args)),
-                _loggedEvent);
-
+            LogEventAssert.HasMessage(string.Format(format, args[0], args[1], args[2]), _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Warning, _loggedEvent);
-
             LogEventAssert.HasPropertyValue(_id, "TraceEventId", _loggedEvent);
             LogEventAssert.HasPropertyValue(_source, "TraceSource", _loggedEvent);
             LogEventAssert.HasPropertyValue(WarningEventType, "TraceEventType", _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[0], "0", _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[1], "1", _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[2], "2", _loggedEvent);
         }
 
         [Test]
@@ -209,12 +221,8 @@ namespace SerilogTraceListener.Tests
 
             _traceListener.TraceTransfer(_traceEventCache, _source, _id, _message, relatedActivityId);
 
-            LogEventAssert.HasMessage(
-                string.Format("{0} Transfer: {1} :" + Environment.NewLine + "{2}, relatedActivityId={3}", _source, _id, _message, relatedActivityId),
-                _loggedEvent);
-
+            LogEventAssert.HasMessage(_message, _loggedEvent);
             LogEventAssert.HasLevel(LogEventLevel.Debug, _loggedEvent);
-
             LogEventAssert.HasPropertyValue(_id, "TraceEventId", _loggedEvent);
             LogEventAssert.HasPropertyValue(_source, "TraceSource", _loggedEvent);
             LogEventAssert.HasPropertyValue(relatedActivityId, "RelatedActivityId", _loggedEvent);
@@ -231,7 +239,7 @@ namespace SerilogTraceListener.Tests
             _traceListener.TraceData(_traceEventCache, _source, WarningEventType, _id, data);
 
             LogEventAssert.HasMessage(
-                string.Format("{0} {1}: {2} :" + Environment.NewLine + "{3}", _source, WarningEventType, _id, data),
+                "\"" + data.ToString() + "\"",
                 _loggedEvent);
 
             LogEventAssert.HasLevel(LogEventLevel.Warning, _loggedEvent);
@@ -239,6 +247,31 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(_id, "TraceEventId", _loggedEvent);
             LogEventAssert.HasPropertyValue(_source, "TraceSource", _loggedEvent);
             LogEventAssert.HasPropertyValue(data.ToString(), "TraceData", _loggedEvent);
+        }
+
+
+        [Test]
+        public void CapturesTraceDataArrayOfInt()
+        {
+            var data = new int[]
+            {
+                Some.Int(),
+                Some.Int()
+            };
+
+            _traceListener.TraceData(_traceEventCache, _source, WarningEventType, _id, data);
+
+            LogEventAssert.HasMessage(
+                String.Format("[{0}, {1}]", data[0], data[1]),
+                _loggedEvent);
+
+            LogEventAssert.HasLevel(LogEventLevel.Warning, _loggedEvent);
+
+            LogEventAssert.HasPropertyValue(_id, "TraceEventId", _loggedEvent);
+            LogEventAssert.HasPropertyValue(_source, "TraceSource", _loggedEvent);
+
+            var sequence = ((SequenceValue)_loggedEvent.Properties["TraceData"]).Elements.Select(pv => pv.LiteralValue());
+            Assert.That(sequence, Is.EquivalentTo(data), "The property value was not as expected");
         }
 
         [Test]
@@ -261,7 +294,7 @@ namespace SerilogTraceListener.Tests
 
             // The square-brackets ('[' ,']') are because of serilog behavior and are not how the stock TraceListener would behave.
             LogEventAssert.HasMessage(
-                string.Format("{0} {1}: {2} :" + Environment.NewLine + "[{3}]", _source, WarningEventType, _id, string.Join(", ", data1, data2, data3)),
+                string.Format("[\"{0}\"]", string.Join("\", \"", data1, data2, data3)),
                 _loggedEvent);
 
             LogEventAssert.HasLevel(LogEventLevel.Warning, _loggedEvent);
@@ -287,7 +320,64 @@ namespace SerilogTraceListener.Tests
             traceSource.TraceInformation(logMessage);
 
             LogEventAssert.HasLevel(LogEventLevel.Information, _loggedEvent);
-            LogEventAssert.HasPropertyValue(logMessage, "TraceMessage", _loggedEvent);
+            LogEventAssert.HasMessage(logMessage, _loggedEvent);
+            LogEventAssert.HasPropertyValue("test", "TraceSource", _loggedEvent);
         }
+
+        [Test]
+        public void CorrectlyOrdersFormatArgs()
+        {
+            const string format = "{1}-{0}-{1}";
+            var args = new object[]
+            {
+                Some.Int(),
+                Some.Int(),
+                Some.Int()
+            };
+
+            _traceListener.TraceEvent(_traceEventCache, _source, WarningEventType, _id, format, args);
+
+            LogEventAssert.HasMessage(args[1].ToString() + "-" + args[0].ToString() + "-" + args[1].ToString(), _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[2], "2", _loggedEvent);
+        }
+
+        [Test]
+        public void HandlesEmptyFormatString()
+        {
+            const string format = "";
+            var args = new object[]
+            {
+                Some.Int(),
+                Some.Int(),
+                Some.Int()
+            };
+
+            _traceListener.TraceEvent(_traceEventCache, _source, WarningEventType, _id, format, args);
+
+            LogEventAssert.HasMessage(string.Empty, _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[0], "0", _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[1], "1", _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[2], "2", _loggedEvent);
+        }
+
+        [Test]
+        public void HandlesNullFormatString()
+        {
+            const string format = null;
+            var args = new object[]
+            {
+                Some.Int(),
+                Some.Int(),
+                Some.Int()
+            };
+
+            _traceListener.TraceEvent(_traceEventCache, _source, WarningEventType, _id, format, args);
+
+            LogEventAssert.HasMessage(string.Empty, _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[0], "0", _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[1], "1", _loggedEvent);
+            LogEventAssert.HasPropertyValue(args[2], "2", _loggedEvent);
+        }
+
     }
 }
