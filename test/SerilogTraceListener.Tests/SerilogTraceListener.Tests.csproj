@@ -44,16 +44,16 @@
       <HintPath>..\..\packages\Serilog.2.0.0\lib\net45\Serilog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Serilog.Tests.Support, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Serilog.Tests.Support.1.0.9\lib\net45\Serilog.Tests.Support.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SerilogTraceListenerSeverityConversionTests.cs" />
     <Compile Include="SerilogTraceListenerTests.cs" />
+    <Compile Include="Support\DelegatingSink.cs" />
+    <Compile Include="Support\Extensions.cs" />
+    <Compile Include="Support\LogEventAssert.cs" />
+    <Compile Include="Support\Some.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -65,6 +65,9 @@
       <Project>{956ED9D7-DC59-4A46-AC32-A255AEAD383B}</Project>
       <Name>SerilogTraceListener</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
