@@ -156,30 +156,13 @@ namespace SerilogTraceListener.Tests
         }
 
         [Test]
-        public void UsesNewLoggerAfterCloseIsCalled()
+        public void ContinuesLoggingAfterCloseIsCalled()
         {
-            ILogger previousLogger = Log.Logger;
-            try
-            {
-                LogEvent afterloggedEvent = null;
-                var newDelegatingSink = new DelegatingSink(evt => { afterloggedEvent = evt; });
-                var newLogger = new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Sink(newDelegatingSink).CreateLogger();
-                Log.Logger = newLogger;
+            _traceListener.Close();
 
-                var before = Some.String("before");
-                var after = Some.String("after");
+            _traceListener.Write(_message);
 
-                _traceListener.Write(before);
-                _traceListener.Close();
-                _traceListener.Write(after);
-
-                LogEventAssert.HasMessage(before, _loggedEvent);
-                LogEventAssert.HasMessage(after, afterloggedEvent);
-            }
-            finally
-            {
-                Log.Logger = previousLogger;
-            }
+            LogEventAssert.HasMessage(_message, _loggedEvent);
         }
 
         [Test]
