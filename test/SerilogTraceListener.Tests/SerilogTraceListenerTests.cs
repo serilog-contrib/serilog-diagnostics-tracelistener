@@ -156,13 +156,13 @@ namespace SerilogTraceListener.Tests
         }
 
         [Test]
-        public void StopsCapturingAfterCloseIsCalled()
+        public void ContinuesLoggingAfterCloseIsCalled()
         {
             _traceListener.Close();
 
             _traceListener.Write(_message);
 
-            Assert.That(_loggedEvent, Is.Null);
+            LogEventAssert.HasMessage(_message, _loggedEvent);
         }
 
         [Test]

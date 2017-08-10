@@ -52,7 +52,6 @@
     <Compile Include="..\..\assets\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Core\Pipeline\SilentLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerilogTraceListener.cs" />
   </ItemGroup>
