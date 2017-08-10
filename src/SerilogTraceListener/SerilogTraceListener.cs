@@ -248,9 +248,11 @@ namespace SerilogTraceListener
             MessageTemplate parsedTemplate;
             IEnumerable<LogEventProperty> boundProperties;
             // boundProperties will be empty and can be ignored
-            logger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties);
-            var logEvent = new LogEvent(DateTimeOffset.UtcNow, level, exception, parsedTemplate, properties);
-            logger.Write(logEvent);
+            if (logger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties))
+            {
+                var logEvent = new LogEvent(DateTimeOffset.UtcNow, level, exception, parsedTemplate, properties);
+                logger.Write(logEvent);
+            }
         }
 
         private void WriteData(TraceEventType eventType, IList<LogEventProperty> properties, object data)
