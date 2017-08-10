@@ -39,6 +39,7 @@ namespace SerilogTraceListener
         const LogEventLevel FailLevel = LogEventLevel.Fatal;
         const string MessagelessTraceEventMessageTemplate = "{TraceSource:l} {TraceEventType}: {TraceEventId}";
         const string TraceDataMessageTemplate = "{TraceData}";
+        string context;
         ILogger logger;
 
         /// <summary>
@@ -48,7 +49,7 @@ namespace SerilogTraceListener
         ///     This is needed because TraceListeners are often configured through XML
         ///     where there would be no opportunity for constructor injection
         /// </remarks>
-        public SerilogTraceListener() : this(Log.Logger)
+        public SerilogTraceListener() : this("SerilogTraceListener.SerilogTraceListener")
         {
         }
 
@@ -69,6 +70,7 @@ namespace SerilogTraceListener
         /// </summary>
         public SerilogTraceListener(string context)
         {
+            this.context = context;
             this.logger = Log.Logger.ForContext("SourceContext", context);
         }
 
@@ -79,7 +81,7 @@ namespace SerilogTraceListener
 
         public override void Close()
         {
-            logger = new SilentLogger();
+            this.logger = Log.Logger.ForContext("SourceContext", context);
             base.Close();
         }
 
