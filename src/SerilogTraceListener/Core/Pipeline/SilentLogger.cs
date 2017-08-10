@@ -370,15 +370,15 @@ namespace Serilog.Core.Pipeline
             out MessageTemplate parsedTemplate,
             out IEnumerable<LogEventProperty> boundProperties)
         {
-            parsedTemplate = new MessageTemplate(string.Empty, new List<MessageTemplateToken>());
-            boundProperties = new List<LogEventProperty>();
+            parsedTemplate = null;
+            boundProperties = null;
             return false;
         }
 
         public bool BindProperty(string propertyName, object value, bool destructureObjects,
             out LogEventProperty property)
         {
-            property = new LogEventProperty(propertyName, new ScalarValue(string.Empty));
+            property = null;
             return false;
         }
     }
