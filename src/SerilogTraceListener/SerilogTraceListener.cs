@@ -93,13 +93,13 @@ namespace SerilogTraceListener
 
         public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
         {
-            var properties = CreateTraceProperties(source, TraceEventType.Transfer, id);
+            var properties = CreateTraceProperties(source, eventType, id);
             WriteData(eventType, properties, data);
         }
 
         public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
         {
-            var properties = CreateTraceProperties(source, TraceEventType.Transfer, id);
+            var properties = CreateTraceProperties(source, eventType, id);
             WriteData(eventType, properties, data);
         }
 
@@ -125,9 +125,10 @@ namespace SerilogTraceListener
 
         public override void TraceTransfer(TraceEventCache eventCache, string source, int id, string message, Guid relatedActivityId)
         {
-            var properties = CreateTraceProperties(source, TraceEventType.Transfer, id);
+            var eventType = TraceEventType.Transfer;
+            var properties = CreateTraceProperties(source, eventType, id);
             SafeAddProperty(properties, RelatedActivityIdProperty, relatedActivityId);
-            Write(TraceEventType.Transfer, null, message, properties);
+            Write(eventType, null, message, properties);
         }
 
         public override void Write(object data)
