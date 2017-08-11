@@ -226,6 +226,7 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(_id, "TraceEventId", _loggedEvent);
             LogEventAssert.HasPropertyValue(_source, "TraceSource", _loggedEvent);
             LogEventAssert.HasPropertyValue(relatedActivityId, "RelatedActivityId", _loggedEvent);
+            LogEventAssert.HasPropertyValue(TraceEventType.Transfer, "TraceEventType", _loggedEvent);
         }
 
         [Test]
@@ -247,8 +248,8 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(_id, "TraceEventId", _loggedEvent);
             LogEventAssert.HasPropertyValue(_source, "TraceSource", _loggedEvent);
             LogEventAssert.HasPropertyValue(data.ToString(), "TraceData", _loggedEvent);
+            LogEventAssert.HasPropertyValue(WarningEventType, "TraceEventType", _loggedEvent);
         }
-
 
         [Test]
         public void CapturesTraceDataArrayOfInt()
@@ -307,6 +308,7 @@ namespace SerilogTraceListener.Tests
                 data2,
                 data3
             }, "TraceData", _loggedEvent);
+            LogEventAssert.HasPropertyValue(WarningEventType, "TraceEventType", _loggedEvent);
         }
 
         [Test]
