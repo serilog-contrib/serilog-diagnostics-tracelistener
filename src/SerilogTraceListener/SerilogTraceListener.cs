@@ -246,7 +246,7 @@ namespace SerilogTraceListener
             // boundProperties will be empty and can be ignored
             if (logger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties))
             {
-                var logEvent = new LogEvent(DateTimeOffset.UtcNow, level, exception, parsedTemplate, properties);
+                var logEvent = new LogEvent(DateTimeOffset.Now, level, exception, parsedTemplate, properties);
                 logger.Write(logEvent);
             }
         }
