@@ -15,38 +15,43 @@ function Set-AssemblyVersions($informational, $assembly)
         Set-Content assets/CommonAssemblyInfo.cs
 }
 
-function Install-NuGetPackages($solution)
-{
-    nuget restore $solution
-}
-
-function Invoke-MSBuild($solution, $customLogger)
+function Invoke-DotNetBuild($customLogger)
 {
     if ($customLogger)
     {
-        msbuild "$solution" /verbosity:minimal /p:Configuration=Release /logger:"$customLogger"
+        dotnet build --verbosity minimal -c Release --logger "$customLogger"
     }
     else
     {
-        msbuild "$solution" /verbosity:minimal /p:Configuration=Release
+        dotnet build --verbosity minimal -c Release
     }
 }
 
-function Invoke-NuGetPackProj($csproj)
+function Invoke-DotNetTest($customLogger)
 {
-    nuget pack -Prop Configuration=Release -Symbols $csproj
+    # Due to https://github.com/Microsoft/vstest/issues/1129 we have to be explicit here 
+    ls test/**/*.csproj |
+        ForEach-Object {
+            if ($customLogger)
+            {
+                dotnet test $_ -c Release --logger "$customLogger"
+            }
+            else
+            {
+                dotnet test $_ -c Release
+            }
+        }
 }
 
-function Invoke-NuGetPackSpec($nuspec, $version)
+function Invoke-DotNetPackProj($csproj)
 {
-    nuget pack $nuspec -Version $version -OutputDirectory ..\..\
+    dotnet pack $csproj -c Release --include-symbols 
 }
 
-function Invoke-NuGetPack($version)
+function Invoke-DotNetPack($version)
 {
     ls src/**/*.csproj |
-        Where-Object { -not ($_.Name -like "*net40*") } |
-        ForEach-Object { Invoke-NuGetPackProj $_ }
+        ForEach-Object { Invoke-DotNetPackProj $_ }
 }
 
 function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
@@ -64,11 +69,9 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
         Set-AssemblyVersions $package $assembly
     }
 
-    Install-NuGetPackages $slnfile
-    
-    Invoke-MSBuild $slnfile $customLogger
-
-    Invoke-NuGetPack $package
+    Invoke-DotNetBuild $customLogger
+    Invoke-DotNetTest $customLogger
+    Invoke-DotNetPack $package
 }
 
 $ErrorActionPreference = "Stop"

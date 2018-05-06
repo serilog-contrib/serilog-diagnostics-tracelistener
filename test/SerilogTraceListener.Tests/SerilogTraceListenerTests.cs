@@ -155,6 +155,7 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(detailMessage, "FailDetails", _loggedEvent);
         }
 
+#if NET45 || NET46
         [Test]
         public void ContinuesLoggingAfterCloseIsCalled()
         {
@@ -164,6 +165,7 @@ namespace SerilogTraceListener.Tests
 
             LogEventAssert.HasMessage(_message, _loggedEvent);
         }
+#endif
 
         [Test]
         public void CapturesTraceEvent()
@@ -214,6 +216,7 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(args[2], "2", _loggedEvent);
         }
 
+#if NET45 || NET46
         [Test]
         public void CapturesTraceTransfer()
         {
@@ -228,6 +231,7 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(relatedActivityId, "RelatedActivityId", _loggedEvent);
             LogEventAssert.HasPropertyValue(TraceEventType.Transfer, "TraceEventType", _loggedEvent);
         }
+#endif
 
         [Test]
         public void CapturesTraceData()
