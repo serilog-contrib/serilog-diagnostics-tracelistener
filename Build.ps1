@@ -19,7 +19,7 @@ function Invoke-DotNetBuild($customLogger)
 {
     if ($customLogger)
     {
-        dotnet build --verbosity minimal -c Release --logger "$customLogger"
+        dotnet build --verbosity minimal -c Release /logger:"$customLogger"
     }
     else
     {
@@ -27,19 +27,12 @@ function Invoke-DotNetBuild($customLogger)
     }
 }
 
-function Invoke-DotNetTest($customLogger)
+function Invoke-DotNetTest()
 {
     # Due to https://github.com/Microsoft/vstest/issues/1129 we have to be explicit here 
     ls test/**/*.csproj |
         ForEach-Object {
-            if ($customLogger)
-            {
-                dotnet test $_ -c Release --logger "$customLogger"
-            }
-            else
-            {
-                dotnet test $_ -c Release
-            }
+            dotnet test $_ -c Release --logger:Appveyor
         }
 }
 
@@ -70,7 +63,7 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
     }
 
     Invoke-DotNetBuild $customLogger
-    Invoke-DotNetTest $customLogger
+    Invoke-DotNetTest
     Invoke-DotNetPack $package
 }
 
