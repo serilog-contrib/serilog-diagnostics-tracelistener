@@ -123,7 +123,7 @@ namespace SerilogTraceListener
             Write(eventType, exception, format, properties);
         }
 
-#if NET45 || NET46
+#if !NETSTANDARD1_3
         public override void TraceTransfer(TraceEventCache eventCache, string source, int id, string message, Guid relatedActivityId)
         {
             var eventType = TraceEventType.Transfer;
@@ -208,7 +208,7 @@ namespace SerilogTraceListener
         private IList<LogEventProperty> CreateProperties()
         {
             var properties = new List<LogEventProperty>();
-#if NET45 || NET46
+#if !NETSTANDARD1_3
             SafeAddProperty(properties, ActivityIdProperty, Trace.CorrelationManager.ActivityId);
 #endif
             return properties;
