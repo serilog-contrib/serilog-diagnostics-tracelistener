@@ -9,7 +9,13 @@ using System.Linq;
 namespace SerilogTraceListener.Tests
 {
     [TestFixture]
-    public class SerilogTraceListenerTests
+#if NET45
+    public class SerilogTraceListenerTests_NET45
+#elif NET46
+    public class SerilogTraceListenerTests_NET46
+#elif NETCOREAPP1_0
+    public class SerilogTraceListenerTests_NETCOREAPP1_0
+#endif
     {
         const TraceEventType WarningEventType = TraceEventType.Warning;
         readonly string _category = Some.String("category");
@@ -155,7 +161,7 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(detailMessage, "FailDetails", _loggedEvent);
         }
 
-#if NET45 || NET46
+#if !NETCOREAPP1_0
         [Test]
         public void ContinuesLoggingAfterCloseIsCalled()
         {
@@ -216,7 +222,7 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(args[2], "2", _loggedEvent);
         }
 
-#if NET45 || NET46
+#if !NETCOREAPP1_0
         [Test]
         public void CapturesTraceTransfer()
         {

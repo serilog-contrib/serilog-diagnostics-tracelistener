@@ -1,7 +1,6 @@
 param(
     [String] $majorMinor = "0.0",  # 2.0
     [String] $patch = "0",         # $env:APPVEYOR_BUILD_VERSION
-    [String] $customLogger = "",   # C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll
     [Switch] $notouch,
     [String] $sln                  # e.g serilog-sink-name
 )
@@ -15,15 +14,12 @@ function Set-AssemblyVersions($informational, $assembly)
         Set-Content assets/CommonAssemblyInfo.cs
 }
 
-function Invoke-DotNetBuild($customLogger)
+function Invoke-DotNetBuild()
 {
-    if ($customLogger)
+    dotnet build --verbosity minimal -c Release
+    if ($LASTEXITCODE -ne 0)
     {
-        dotnet build --verbosity minimal -c Release /logger:"$customLogger"
-    }
-    else
-    {
-        dotnet build --verbosity minimal -c Release
+    	throw "Build failed with exit code $LASTEXITCODE"
     }
 }
 
@@ -33,12 +29,20 @@ function Invoke-DotNetTest()
     ls test/**/*.csproj |
         ForEach-Object {
             dotnet test $_ -c Release --logger:Appveyor
+            if ($LASTEXITCODE -ne 0)
+            {
+            	throw "Testing $_ failed with exit code $LASTEXITCODE"
+            }
         }
 }
 
 function Invoke-DotNetPackProj($csproj)
 {
     dotnet pack $csproj -c Release --include-symbols 
+    if ($LASTEXITCODE -ne 0)
+    {
+	    throw "Packing $csproj failed with exit code $LASTEXITCODE"
+	}
 }
 
 function Invoke-DotNetPack($version)
@@ -62,7 +66,7 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
         Set-AssemblyVersions $package $assembly
     }
 
-    Invoke-DotNetBuild $customLogger
+    Invoke-DotNetBuild
     Invoke-DotNetTest
     Invoke-DotNetPack $package
 }
