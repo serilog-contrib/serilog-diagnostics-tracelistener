@@ -1,7 +1,7 @@
 version: '{build}'
 image: Visual Studio 2017
 build_script:
-- ps: ./Build.ps1 -majorMinor "3.0" -patch "$env:APPVEYOR_BUILD_VERSION"
+- ps: ./Build.ps1 -majorMinor "3.1" -patch "$env:APPVEYOR_BUILD_VERSION"
 artifacts:
 - path: '*.nupkg'
 deploy:
