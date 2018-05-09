@@ -1,7 +1,6 @@
 param(
     [String] $majorMinor = "0.0",  # 2.0
     [String] $patch = "0",         # $env:APPVEYOR_BUILD_VERSION
-    [String] $customLogger = "",   # C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll
     [Switch] $notouch,
     [String] $sln                  # e.g serilog-sink-name
 )
@@ -15,38 +14,41 @@ function Set-AssemblyVersions($informational, $assembly)
         Set-Content assets/CommonAssemblyInfo.cs
 }
 
-function Install-NuGetPackages($solution)
+function Invoke-DotNetBuild()
 {
-    nuget restore $solution
-}
-
-function Invoke-MSBuild($solution, $customLogger)
-{
-    if ($customLogger)
+    dotnet build --verbosity minimal -c Release
+    if ($LASTEXITCODE -ne 0)
     {
-        msbuild "$solution" /verbosity:minimal /p:Configuration=Release /logger:"$customLogger"
-    }
-    else
-    {
-        msbuild "$solution" /verbosity:minimal /p:Configuration=Release
+    	throw "Build failed with exit code $LASTEXITCODE"
     }
 }
 
-function Invoke-NuGetPackProj($csproj)
+function Invoke-DotNetTest()
 {
-    nuget pack -Prop Configuration=Release -Symbols $csproj
+    # Due to https://github.com/Microsoft/vstest/issues/1129 we have to be explicit here 
+    ls test/**/*.csproj |
+        ForEach-Object {
+            dotnet test $_ -c Release --logger:Appveyor
+            if ($LASTEXITCODE -ne 0)
+            {
+            	throw "Testing $_ failed with exit code $LASTEXITCODE"
+            }
+        }
 }
 
-function Invoke-NuGetPackSpec($nuspec, $version)
+function Invoke-DotNetPackProj($csproj)
 {
-    nuget pack $nuspec -Version $version -OutputDirectory ..\..\
+    dotnet pack $csproj -c Release --include-symbols 
+    if ($LASTEXITCODE -ne 0)
+    {
+	    throw "Packing $csproj failed with exit code $LASTEXITCODE"
+	}
 }
 
-function Invoke-NuGetPack($version)
+function Invoke-DotNetPack($version)
 {
     ls src/**/*.csproj |
-        Where-Object { -not ($_.Name -like "*net40*") } |
-        ForEach-Object { Invoke-NuGetPackProj $_ }
+        ForEach-Object { Invoke-DotNetPackProj $_ }
 }
 
 function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
@@ -64,11 +66,9 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
         Set-AssemblyVersions $package $assembly
     }
 
-    Install-NuGetPackages $slnfile
-    
-    Invoke-MSBuild $slnfile $customLogger
-
-    Invoke-NuGetPack $package
+    Invoke-DotNetBuild
+    Invoke-DotNetTest
+    Invoke-DotNetPack $package
 }
 
 $ErrorActionPreference = "Stop"
