@@ -1,85 +1,51 @@
-param(
-    [String] $majorMinor = "0.0",  # 2.0
-    [String] $patch = "0",         # $env:APPVEYOR_BUILD_VERSION
-    [Switch] $notouch,
-    [String] $sln                  # e.g serilog-sink-name
-)
+# Based on https://github.com/serilog/serilog/blob/dev/Build.ps1
 
-function Set-AssemblyVersions($informational, $assembly)
-{
-    (Get-Content assets/CommonAssemblyInfo.cs) |
-        ForEach-Object { $_ -replace """1.0.0.0""", """$assembly""" } |
-        ForEach-Object { $_ -replace """1.0.0""", """$informational""" } |
-        ForEach-Object { $_ -replace """1.1.1.1""", """$($informational).0""" } |
-        Set-Content assets/CommonAssemblyInfo.cs
+echo "build: Build started"
+
+Push-Location $PSScriptRoot
+
+if(Test-Path .\artifacts) {
+	echo "build: Cleaning .\artifacts"
+	Remove-Item .\artifacts -Force -Recurse
 }
 
-function Invoke-DotNetBuild()
-{
-    dotnet build --verbosity minimal -c Release
-    if ($LASTEXITCODE -ne 0)
-    {
-    	throw "Build failed with exit code $LASTEXITCODE"
+& dotnet restore --no-cache
+
+$branch = @{ $true = $env:APPVEYOR_REPO_BRANCH; $false = $(git symbolic-ref --short -q HEAD) }[$env:APPVEYOR_REPO_BRANCH -ne $NULL];
+$revision = @{ $true = "{0:00000}" -f [convert]::ToInt32("0" + $env:APPVEYOR_BUILD_NUMBER, 10); $false = "local" }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
+$suffix = @{ $true = ""; $false = "$($branch.Substring(0, [math]::Min(10,$branch.Length)))-$revision"}[$branch -eq "master" -and $revision -ne "local"]
+$commitHash = $(git rev-parse --short HEAD)
+$buildSuffix = @{ $true = "$($suffix)-$($commitHash)"; $false = "$($branch)-$($commitHash)" }[$suffix -ne ""]
+
+echo "build: Package version suffix is $suffix"
+echo "build: Build version suffix is $buildSuffix" 
+
+foreach ($src in ls src/*) {
+    Push-Location $src
+
+	echo "build: Packaging project in $src"
+
+    & dotnet build -c Release --version-suffix=$buildSuffix
+
+    if($suffix) {
+        & dotnet pack -c Release --include-source --no-build -o ..\..\artifacts --version-suffix=$suffix
+    } else {
+        & dotnet pack -c Release --include-source --no-build -o ..\..\artifacts
     }
+    if($LASTEXITCODE -ne 0) { exit 1 }    
+
+    Pop-Location
 }
 
-function Invoke-DotNetTest()
-{
-    # Due to https://github.com/Microsoft/vstest/issues/1129 we have to be explicit here 
-    ls test/**/*.csproj |
-        ForEach-Object {
-            dotnet test $_ -c Release --logger:Appveyor
-            if ($LASTEXITCODE -ne 0)
-            {
-            	throw "Testing $_ failed with exit code $LASTEXITCODE"
-            }
-        }
+foreach ($test in ls test/*.Tests) {
+    Push-Location $test
+
+	echo "build: Testing project in $test"
+
+    & dotnet test -c Release
+    if($LASTEXITCODE -ne 0) { exit 3 }
+
+    Pop-Location
 }
 
-function Invoke-DotNetPackProj($csproj)
-{
-    dotnet pack $csproj -c Release --include-symbols 
-    if ($LASTEXITCODE -ne 0)
-    {
-	    throw "Packing $csproj failed with exit code $LASTEXITCODE"
-	}
-}
-
-function Invoke-DotNetPack($version)
-{
-    ls src/**/*.csproj |
-        ForEach-Object { Invoke-DotNetPackProj $_ }
-}
-
-function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
-{
-    $package="$majorMinor.$patch"
-    $slnfile = "$sln.sln"
-
-    Write-Output "$sln $package"
-
-    if (-not $notouch)
-    {
-        $assembly = "$majorMinor.0.0"
-
-        Write-Output "Assembly version will be set to $assembly"
-        Set-AssemblyVersions $package $assembly
-    }
-
-    Invoke-DotNetBuild
-    Invoke-DotNetTest
-    Invoke-DotNetPack $package
-}
-
-$ErrorActionPreference = "Stop"
-
-if (-not $sln)
-{
-    $slnfull = ls *.sln |
-        Where-Object { -not ($_.Name -like "*net40*") } |
-        Select -first 1
-
-    $sln = $slnfull.BaseName
-}
-
-Invoke-Build $majorMinor $patch $customLogger $notouch $sln
+Pop-Location
