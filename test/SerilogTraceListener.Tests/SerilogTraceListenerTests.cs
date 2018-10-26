@@ -391,5 +391,31 @@ namespace SerilogTraceListener.Tests
             LogEventAssert.HasPropertyValue(args[2], "2", _loggedEvent);
         }
 
+        [Test]
+        public void ItRespectsTraceFilters()
+        {
+            _traceListener.Filter = new DummyFilter(id => id % 2 == 0);
+
+            _traceListener.TraceData(new TraceEventCache(), _source, TraceEventType.Information, 3, _message);
+            Assert.Null(_loggedEvent);
+
+            _traceListener.TraceData(new TraceEventCache(), _source, TraceEventType.Information, 4, _message);
+            Assert.NotNull(_loggedEvent);
+        }
+
+        private class DummyFilter: TraceFilter
+        {
+            private Predicate<int> predicate;
+
+            public DummyFilter(Predicate<int> predicate)
+            {
+                this.predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
+            }
+
+            public override bool ShouldTrace(TraceEventCache cache, string source, TraceEventType eventType, int id, string formatOrMessage, object[] args, object data1, object[] data)
+            {
+                return predicate(id);
+            }
+        }
     }
 }

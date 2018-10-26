@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 
 namespace SerilogTraceListener
 {
@@ -93,30 +94,50 @@ namespace SerilogTraceListener
 
         public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
         {
+            if (!ShouldTrace(eventCache, source, eventType, id, "", null, data, null))
+            {
+                return;
+            }
             var properties = CreateTraceProperties(source, eventType, id);
             WriteData(eventType, properties, data);
         }
 
         public override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
         {
+            if (!ShouldTrace(eventCache, source, eventType, id, "", null, null, data))
+            {
+                return;
+            }
             var properties = CreateTraceProperties(source, eventType, id);
             WriteData(eventType, properties, data);
         }
 
         public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id)
         {
+            if (!ShouldTrace(eventCache, source, eventType, id, "", null, null, null))
+            {
+                return;
+            }
             var properties = CreateTraceProperties(source, eventType, id);
             Write(eventType, null, MessagelessTraceEventMessageTemplate, properties);
         }
 
         public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)
         {
+            if (!ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
+            {
+                return;
+            }
             var properties = CreateTraceProperties(source, eventType, id);
             Write(eventType, null, message, properties);
         }
 
         public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
         {
+            if (!ShouldTrace(eventCache, source, eventType, id, format, args, null, null))
+            {
+                return;
+            }
             var properties = CreateTraceProperties(source, eventType, id);
             Exception exception;
             AddFormatArgs(properties, args, out exception);
@@ -253,6 +274,11 @@ namespace SerilogTraceListener
                 var logEvent = new LogEvent(DateTimeOffset.Now, level, exception, parsedTemplate, properties);
                 logger.Write(logEvent);
             }
+        }
+
+        private bool ShouldTrace(TraceEventCache cache, string source, TraceEventType eventType, int id, string formatOrMessage, object[] args, object data1, object[] data)
+        {
+            return Filter == null ? true : Filter.ShouldTrace(cache, source, eventType, id, formatOrMessage, args, data1, data);
         }
 
         private void WriteData(TraceEventType eventType, IList<LogEventProperty> properties, object data)
