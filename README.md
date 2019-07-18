@@ -42,18 +42,6 @@ To enable the listener through XML in `App.config` or `Web.config`, add it to th
              initializeData="Some.Source.Context" />
       </listeners>
     </trace>
-	
-	...   If you need late binding of TraceSource to TraceListener
-		(i.e. you believe your SerilogTraceListener was created before
-		you had the Serlog.Log setup) then you can do it this way:   ...
-	
-	<source name="MyTraceSource" switchValue="All">
-      <listeners>
-        <clear />
-        <add name="Serilog" type="SerilogTraceListener.SerilogTraceListener, SerilogTraceListener" />
-      </listeners>
-    </source>
-
   </system.diagnostics>
 ```
 
