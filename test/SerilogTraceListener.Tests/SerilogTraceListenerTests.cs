@@ -32,6 +32,7 @@ namespace SerilogTraceListener.Tests
         {
             var delegatingSink = new DelegatingSink(evt => { _loggedEvent = evt; });
             var logger = new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Sink(delegatingSink).CreateLogger();
+            Log.Logger = logger;    //for the NULL-constructor "ItStillWorksIfTheClrUsedTheNullConstructor" test below
 
             _loggedEvent = null;
             _traceListener = new global::SerilogTraceListener.SerilogTraceListener(logger);
@@ -400,6 +401,14 @@ namespace SerilogTraceListener.Tests
             Assert.Null(_loggedEvent);
 
             _traceListener.TraceData(new TraceEventCache(), _source, TraceEventType.Information, 4, _message);
+            Assert.NotNull(_loggedEvent);
+        }
+
+        [Test]
+        public void ItStillWorksIfTheClrUsedTheNullConstructor()
+        {
+            var traceListener = new SerilogTraceListener();
+            traceListener.Write($"Test");
             Assert.NotNull(_loggedEvent);
         }
 
