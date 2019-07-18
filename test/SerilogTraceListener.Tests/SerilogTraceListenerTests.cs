@@ -5,6 +5,7 @@ using Serilog.Tests.Support;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 namespace SerilogTraceListener.Tests
 {
@@ -26,15 +27,17 @@ namespace SerilogTraceListener.Tests
 
         global::SerilogTraceListener.SerilogTraceListener _traceListener;
         LogEvent _loggedEvent;
+        LogEvent _loggedEvent2;
+        ILogger _logger;
 
         [SetUp]
         public void SetUp()
         {
             var delegatingSink = new DelegatingSink(evt => { _loggedEvent = evt; });
-            var logger = new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Sink(delegatingSink).CreateLogger();
+            _logger = new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Sink(delegatingSink).CreateLogger();
 
             _loggedEvent = null;
-            _traceListener = new global::SerilogTraceListener.SerilogTraceListener(logger);
+            _traceListener = new global::SerilogTraceListener.SerilogTraceListener(_logger);
         }
 
         [TearDown]
@@ -401,6 +404,40 @@ namespace SerilogTraceListener.Tests
 
             _traceListener.TraceData(new TraceEventCache(), _source, TraceEventType.Information, 4, _message);
             Assert.NotNull(_loggedEvent);
+        }
+
+        [Test]
+        public void DontTryToRewireSerilogTraceListenerIfYouArentUsingDiagnosticsConfig()
+        {
+            //use reflection to RESET the static SerilogTraceListener._staticLastListener to NULL in case the test "CanConfigureAfterTraceListenerIsWired" has already been run
+            var field = typeof(SerilogTraceListener).GetField("_staticLastListener", BindingFlags.Static | BindingFlags.NonPublic);
+            field.SetValue(null, null);
+
+            //confirm SerilogTraceListener throws if you never called the SerilogTraceListener empty constructor
+            var newLogger = new LoggerConfiguration().MinimumLevel.Verbose().CreateLogger();
+
+            Assert.Throws<InvalidOperationException>(() => SerilogTraceListener.ConnectSerilog(newLogger));
+        }
+
+        [Test]
+        public void CanConfigureAfterTraceListenerIsWired()
+        {
+            _loggedEvent2 = null;
+            var delegatingSink2 = new DelegatingSink(evt => { _loggedEvent2 = evt; });
+
+            var newLogger = new LoggerConfiguration().MinimumLevel.Verbose().CreateLogger();
+
+            //NOTE: not quite the same as if the SerilogTraceListener was created by the CLR via diagnostics config, but its something...
+            SerilogTraceListener fakedSerilogTraceListener = new SerilogTraceListener();
+
+            SerilogTraceListener.ConnectSerilog(newLogger);
+            _traceListener.TraceData(new TraceEventCache(), _source, TraceEventType.Information, 3, _message);
+            Assert.Null(_loggedEvent2);
+
+            _loggedEvent = null;
+            SerilogTraceListener.ConnectSerilog(_logger);
+            _traceListener.TraceData(new TraceEventCache(), _source, TraceEventType.Information, 4, _message);
+            Assert.NotNull(_loggedEvent);   //this test isn't quite right....
         }
 
         private class DummyFilter: TraceFilter
