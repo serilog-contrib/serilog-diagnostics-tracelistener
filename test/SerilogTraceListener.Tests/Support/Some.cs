@@ -5,15 +5,17 @@ using System.Threading;
 using Serilog.Events;
 using Serilog.Parsing;
 
-namespace Serilog.Tests.Support
+// ReSharper disable UnusedMember.Global
+
+namespace SerilogTraceListener.Tests.Support
 {
     public static class Some
     {
-        static int Counter;
+        static int _counter;
 
         public static int Int()
         {
-            return Interlocked.Increment(ref Counter);
+            return Interlocked.Increment(ref _counter);
         }
 
         public static decimal Decimal()
