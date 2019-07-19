@@ -1,14 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net46;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net45;net46;netstandard1.3;netstandard2.0</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SerilogTraceListener.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <Authors>SerilogTraceListener Contributors</Authors>
     <Description>Provides a System.Diagnostics.TraceListener implementation that outputs to Serilog.</Description>
-    <VersionPrefix>3.1.1</VersionPrefix>
+    <VersionPrefix>3.2.0</VersionPrefix>
     <AssemblyName>SerilogTraceListener</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>SerilogTraceListener</PackageId>
@@ -20,7 +20,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Serilog" Version="2.6.0" />
+    <PackageReference Include="Serilog" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">

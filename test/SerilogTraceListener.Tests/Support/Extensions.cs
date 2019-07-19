@@ -1,6 +1,6 @@
 ﻿using Serilog.Events;
 
-namespace Serilog.Tests.Support
+namespace SerilogTraceListener.Tests.Support
 {
     public static class Extensions
     {
