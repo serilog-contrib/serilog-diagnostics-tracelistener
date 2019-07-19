@@ -1,4 +1,4 @@
-# Serilog `TraceListener` [![NuGet](https://img.shields.io/nuget/v/SerilogTraceListener.svg?maxAge=2592000)](https://nuget.org/packages/SerilogTraceListener) [![Build status](https://img.shields.io/appveyor/ci/vossad01/serilogtracelistener/master.svg)](https://ci.appveyor.com/project/vossad01/serilogtracelistener/branch/master)
+# Serilog `TraceListener` [![NuGet](https://img.shields.io/nuget/v/SerilogTraceListener.svg?maxAge=2592000)](https://nuget.org/packages/SerilogTraceListener) [![Build status](https://ci.appveyor.com/api/projects/status/4f33pmp3txc8jnnk?svg=true)](https://ci.appveyor.com/project/NicholasBlumhardt/serilogtracelistener)
 
 This library provides a `System.Diagnostics.TraceListener` implementation that outputs to Serilog. This means that output from third-party libraries using `System.Diagnostics.Trace` can be collected through the Serilog pipeline.
 

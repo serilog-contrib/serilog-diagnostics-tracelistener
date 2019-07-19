@@ -3,26 +3,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
+using Serilog.Events;
 
 namespace SerilogTraceListener.Tests
 {
     [TestFixture]
-#if NET45
-    public class SerilogTraceListenerSeverityConversionTests_NET45
-#elif NET46
-    public class SerilogTraceListenerSeverityConversionTests_NET46
-#elif NETCOREAPP1_0
-    public class SerilogTraceListenerSeverityConversionTests_NETSTANDARD1_3
-#endif
+    public class SerilogTraceListenerSeverityConversionTests
     {
-        static IEnumerable<TraceEventType> allTraceEventTypes = Enum.GetValues(typeof(TraceEventType)).Cast<TraceEventType>();
+        static readonly IEnumerable<TraceEventType> AllTraceEventTypes = Enum.GetValues(typeof(TraceEventType)).Cast<TraceEventType>();
 
         [Test]
-        public void CanConvertAnyTraceEventType([ValueSource("allTraceEventTypes")] TraceEventType sourceType)
+        public void CanConvertAnyTraceEventType([ValueSource(nameof(AllTraceEventTypes))] TraceEventType sourceType)
         {
-            TestDelegate act = () => global::SerilogTraceListener.SerilogTraceListener.ToLogEventLevel(sourceType);
-
-            Assert.DoesNotThrow(act);
+            var mapped = LevelMapping.ToLogEventLevel(sourceType);
+            Assert.That(Enum.GetValues(typeof(LogEventLevel)).Cast<LogEventLevel>().Contains(mapped));
         }
     }
 }

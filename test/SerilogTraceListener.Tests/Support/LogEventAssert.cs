@@ -2,11 +2,11 @@ using System.Linq;
 using NUnit.Framework;
 using Serilog.Events;
 
-namespace Serilog.Tests.Support
+namespace SerilogTraceListener.Tests.Support
 {
     /// <summary>
     ///     The LogEventAssert class contains a collection of static methods that
-    ///     implement assertions againt Serilog.Events.LogEvent
+    ///     implement assertions against Serilog.Events.LogEvent
     /// </summary>
     public static class LogEventAssert
     {
@@ -22,12 +22,7 @@ namespace Serilog.Tests.Support
 
         public static void HasProperty(string propertyName, LogEvent logEvent)
         {
-            Assert.That(logEvent.Properties, Contains.Key(propertyName), "Exected property was not found.");
-        }
-
-        public static void DoesNotHaveProperty(string propertyName, LogEvent logEvent)
-        {
-            Assert.That(logEvent.Properties.ContainsKey(propertyName), Is.False, "Found property {0} when it should not have been found", propertyName);
+            Assert.That(logEvent.Properties, Contains.Key(propertyName), "Expected property was not found.");
         }
 
         public static void HasPropertyValue(object propertyValue, string propertyName, LogEvent logEvent)
@@ -42,7 +37,7 @@ namespace Serilog.Tests.Support
         {
             HasProperty(propertyName, logEvent);
 
-            LogEventPropertyValue value = logEvent.Properties[propertyName];
+            var value = logEvent.Properties[propertyName];
             var sequence = ((SequenceValue) value).Elements.Select(pv => pv.LiteralValue());
 
             Assert.That(sequence, Is.EquivalentTo(propertyValue.Select(_ => _.ToString())), "The property value was not as expected");
