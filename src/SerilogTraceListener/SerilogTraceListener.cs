@@ -43,14 +43,15 @@ namespace SerilogTraceListener
         ILogger logger;
 
         /// <summary>
-        ///     Creates a SerilogTraceListener that uses the logger from `Serilog.Log`
+        ///     Creates a SerilogTraceListener that sets logger to null so we can still use Serilog's Logger.Log
         /// </summary>
         /// <remarks>
         ///     This is needed because TraceListeners are often configured through XML
         ///     where there would be no opportunity for constructor injection
         /// </remarks>
-        public SerilogTraceListener() : this(Log.Logger)
+        public SerilogTraceListener()
         {
+            logger = null;
         }
 
         /// <summary>
@@ -247,7 +248,8 @@ namespace SerilogTraceListener
         private void SafeAddProperty(IList<LogEventProperty> properties, string name, object value)
         {
             LogEventProperty property;
-            if (logger.BindProperty(name, value, false, out property))
+            var localLogger = logger ?? Log.Logger;
+            if (localLogger.BindProperty(name, value, false, out property))
             {
                 properties.Add(property);
             }
@@ -268,11 +270,13 @@ namespace SerilogTraceListener
             }
             MessageTemplate parsedTemplate;
             IEnumerable<LogEventProperty> boundProperties;
+
+            var localLogger = logger ?? Log.Logger;
             // boundProperties will be empty and can be ignored
-            if (logger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties))
+            if (localLogger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties))
             {
                 var logEvent = new LogEvent(DateTimeOffset.Now, level, exception, parsedTemplate, properties);
-                logger.Write(logEvent);
+                localLogger.Write(logEvent);
             }
         }
 
