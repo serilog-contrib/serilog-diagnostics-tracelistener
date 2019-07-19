@@ -41,18 +41,17 @@ namespace SerilogTraceListener
         const string MessagelessTraceEventMessageTemplate = "{TraceSource:l} {TraceEventType}: {TraceEventId}";
         const string TraceDataMessageTemplate = "{TraceData}";
         ILogger logger;
-        static SerilogTraceListener _staticLastListener;    //keep a static copy of the latest SerilogTraceListener, for rewiring the Log.Logger if you use diagnostics config to create your SerilogTraceListener
 
         /// <summary>
-        ///     Creates a SerilogTraceListener that uses the logger from `Serilog.Log`
+        ///     Creates a SerilogTraceListener that sets logger to null so we can still use Serilog's Logger.Log
         /// </summary>
         /// <remarks>
         ///     This is needed because TraceListeners are often configured through XML
         ///     where there would be no opportunity for constructor injection
         /// </remarks>
-        public SerilogTraceListener() : this(Log.Logger)
+        public SerilogTraceListener()
         {
-            _staticLastListener = this; //keep a copy of the most recently constructed SerilogTraceListener in case we need to rewire the logger after TraceListners are wired BEFORE the Log.Logger was created
+            logger = null;
         }
 
         /// <summary>
@@ -61,7 +60,6 @@ namespace SerilogTraceListener
         public SerilogTraceListener(ILogger logger)
         {
             this.logger = logger.ForContext<SerilogTraceListener>();
-            //NOTE: if we could compare the ILogger passed in to "SilentLogger" then this would be a much better solution, but alas, Serilog made that class private for...reasons?
         }
 
         /// <summary>
@@ -250,7 +248,8 @@ namespace SerilogTraceListener
         private void SafeAddProperty(IList<LogEventProperty> properties, string name, object value)
         {
             LogEventProperty property;
-            if (logger.BindProperty(name, value, false, out property))
+            var localLogger = logger ?? Log.Logger;
+            if (localLogger.BindProperty(name, value, false, out property))
             {
                 properties.Add(property);
             }
@@ -271,11 +270,13 @@ namespace SerilogTraceListener
             }
             MessageTemplate parsedTemplate;
             IEnumerable<LogEventProperty> boundProperties;
+
+            var localLogger = logger ?? Log.Logger;
             // boundProperties will be empty and can be ignored
-            if (logger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties))
+            if (localLogger.BindMessageTemplate(messageTemplate, null, out parsedTemplate, out boundProperties))
             {
                 var logEvent = new LogEvent(DateTimeOffset.Now, level, exception, parsedTemplate, properties);
-                logger.Write(logEvent);
+                localLogger.Write(logEvent);
             }
         }
 
@@ -320,17 +321,6 @@ namespace SerilogTraceListener
                         return LogEventLevel.Debug;
                     }
             }
-        }
-
-        /// <summary>HACK to get SerilogTraceListener wired up to a real Serilog if you set it up in diagnostics config<summary>
-        /// <param name="newSerilogger">pass in the ILogger that you setup after the config built our SerilogTraceListener for us</param>
-        public static void ConnectSerilog(ILogger newSerilogger)
-        {
-            //I'm not sure this really matters much, but it does offer some kind of "what do you *think* you are doing" kind of protection
-            if (_staticLastListener == null)
-                throw new InvalidOperationException($"Do not try to re-connect to Serilog if you are not using diagnostics config to setup your SerilogTraceListener");
-            //would be better if we could compare to SilentLogger (back in the constructor) but its protected by Serilog
-            _staticLastListener.logger = newSerilogger;
         }
     }
 }
