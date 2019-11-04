@@ -15,7 +15,7 @@
 using System.Diagnostics;
 using Serilog.Events;
 
-namespace SerilogTraceListener
+namespace Serilog.Diagnostics
 {
     static class LevelMapping
     {

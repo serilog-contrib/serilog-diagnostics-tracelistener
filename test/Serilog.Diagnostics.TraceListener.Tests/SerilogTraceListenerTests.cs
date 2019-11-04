@@ -2,11 +2,10 @@
 using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
-using Serilog;
 using Serilog.Events;
 using SerilogTraceListener.Tests.Support;
 
-namespace SerilogTraceListener.Tests
+namespace Serilog.Diagnostics.TraceListener.Tests
 {
     [TestFixture]
     public class SerilogTraceListenerTests
@@ -18,7 +17,7 @@ namespace SerilogTraceListener.Tests
         readonly string _source = Some.String("source");
         readonly TraceEventCache _traceEventCache = new TraceEventCache();
 
-        SerilogTraceListener _traceListener;
+        Serilog.Diagnostics.SerilogTraceListener _traceListener;
         LogEvent _loggedEvent;
 
         [SetUp]

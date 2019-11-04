@@ -6,10 +6,11 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SerilogTraceListener.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <Authors>SerilogTraceListener Contributors</Authors>
+    <Authors>Serilog.Diagnostics.TraceListener Contributors</Authors>
     <Description>Provides a System.Diagnostics.TraceListener implementation that outputs to Serilog.</Description>
     <VersionPrefix>3.2.1</VersionPrefix>
-    <AssemblyName>SerilogTraceListener</AssemblyName>
+    <AssemblyName>Serilog.Diagnostics.TraceListener</AssemblyName>
+    <RootNamespace>Serilog</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>SerilogTraceListener</PackageId>
     <PackageTags>serilog</PackageTags>

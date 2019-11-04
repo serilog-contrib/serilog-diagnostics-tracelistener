@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Serilog;
-using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using Serilog.Events;
 
-namespace SerilogTraceListener
+namespace Serilog.Diagnostics
 {
     /// <summary>
     /// TraceListener implementation that directs all output to Serilog.
