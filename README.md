@@ -26,7 +26,7 @@ Trace.Listeners.Add(listener);
 This will write the events through the static `Log` class. Alternatively, a specific logger instance can be used instead:
 
 ```csharp
-var listener = new SerilogTraceListener.SerilogTraceListener();
+var listener = new SerilogTraceListener.SerilogTraceListener(specificLoggerInstance);
 ```
 
 ### Enabling the listener (XML)
@@ -44,5 +44,25 @@ To enable the listener through XML in `App.config` or `Web.config`, add it to th
     </trace>
   </system.diagnostics>
 ```
-
 A `SourceContext` value can optionally be provided through `initializeData`.
+
+To log a specific trace source, configure it in this way:
+
+```xml
+  <system.diagnostics>
+    <sharedListeners>
+      <add name="serilog" type="SerilogTraceListener.SerilogTraceListener, SerilogTraceListener" />
+    </sharedListeners>
+    <sources>
+      <source name="Example.Source.Name" switchValue="All">
+        <listeners>
+          <clear/>
+          <add name="serilog"/>
+        </listeners>
+      </source>
+    </sources>
+  </system.diagnostics>
+</configuration>
+``
+
+For using XML configuration, as it's not possible to pass a logger instance through XML configuration, it's necessary to set the static `Log.Logger` in the application code, which will be used for logging. If `log.Logger` is not set, it fails silently.
