@@ -65,4 +65,4 @@ To log a specific trace source, configure it in this way:
 </configuration>
 ``
 
-For using XML configuration, as it's not possible to pass a logger instance through XML configuration, it's necessary to set the static `Log.Logger` in the application code, which will be used for logging. If `log.Logger` is not set, it fails silently.
+For using XML configuration, as it's not possible to pass a logger instance through XML configuration, it's necessary to set the static `Log.Logger` in the application code, which will be used for logging. If `Log.Logger` is not set, it fails silently.
