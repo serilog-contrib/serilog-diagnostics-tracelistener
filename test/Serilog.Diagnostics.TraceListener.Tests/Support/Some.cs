@@ -7,7 +7,7 @@ using Serilog.Parsing;
 
 // ReSharper disable UnusedMember.Global
 
-namespace SerilogTraceListener.Tests.Support
+namespace Serilog.Diagnostics.TraceListener.Tests.Support
 {
     public static class Some
     {

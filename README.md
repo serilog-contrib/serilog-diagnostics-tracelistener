@@ -19,14 +19,14 @@ Install-Package SerilogTraceListener -DependencyVersion Highest
 After configuring Serilog, create a `SerilogTraceListener` and add it to the `System.Diagnostics.Trace.Listeners` collection:
 
 ```csharp
-var listener = new global::SerilogTraceListener.SerilogTraceListener();
+var listener = new Serilog.Diagnostics.SerilogTraceListener();
 Trace.Listeners.Add(listener);
 ```
 
 This will write the events through the static `Log` class. Alternatively, a specific logger instance can be used instead:
 
 ```csharp
-var listener = new SerilogTraceListener.SerilogTraceListener();
+var listener = new Serilog.Diagnostics.SerilogTraceListener();
 ```
 
 ### Enabling the listener (XML)
@@ -38,7 +38,7 @@ To enable the listener through XML in `App.config` or `Web.config`, add it to th
     <trace autoflush="true">
       <listeners>
         <add name="Serilog"
-             type="SerilogTraceListener.SerilogTraceListener, SerilogTraceListener"
+             type="Serilog.Diagnostics.SerilogTraceListener, Serilog.Diagnostics.TraceListener"
              initializeData="Some.Source.Context" />
       </listeners>
     </trace>

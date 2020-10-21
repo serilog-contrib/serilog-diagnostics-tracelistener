@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SerilogTraceListener\SerilogTraceListener.csproj" />
+    <ProjectReference Include="..\..\src\Serilog.Diagnostics.TraceListener\Serilog.Diagnostics.TraceListener.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 using Serilog.Core;
 using Serilog.Events;
 
-namespace SerilogTraceListener.Tests.Support
+namespace Serilog.Diagnostics.TraceListener.Tests.Support
 {
     public class DelegatingSink : ILogEventSink
     {

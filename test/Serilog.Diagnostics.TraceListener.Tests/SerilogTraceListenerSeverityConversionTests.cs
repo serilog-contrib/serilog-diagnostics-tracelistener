@@ -5,7 +5,7 @@ using System.Linq;
 using NUnit.Framework;
 using Serilog.Events;
 
-namespace SerilogTraceListener.Tests
+namespace Serilog.Diagnostics.TraceListener.Tests
 {
     [TestFixture]
     public class SerilogTraceListenerSeverityConversionTests

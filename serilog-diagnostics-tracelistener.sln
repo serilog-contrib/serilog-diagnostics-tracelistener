@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2043
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerilogTraceListener", "src\SerilogTraceListener\SerilogTraceListener.csproj", "{CA97E896-B295-471F-A9B6-D805B32ABE75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Diagnostics.TraceListener", "src\Serilog.Diagnostics.TraceListener\Serilog.Diagnostics.TraceListener.csproj", "{CA97E896-B295-471F-A9B6-D805B32ABE75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerilogTraceListener.Tests", "test\SerilogTraceListener.Tests\SerilogTraceListener.Tests.csproj", "{9F8A249F-B072-4CF4-BA88-F689E76883A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Diagnostics.TraceListener.Tests", "test\Serilog.Diagnostics.TraceListener.Tests\Serilog.Diagnostics.TraceListener.Tests.csproj", "{9F8A249F-B072-4CF4-BA88-F689E76883A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

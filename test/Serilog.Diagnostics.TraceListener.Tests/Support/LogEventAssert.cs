@@ -2,7 +2,7 @@ using System.Linq;
 using NUnit.Framework;
 using Serilog.Events;
 
-namespace SerilogTraceListener.Tests.Support
+namespace Serilog.Diagnostics.TraceListener.Tests.Support
 {
     /// <summary>
     ///     The LogEventAssert class contains a collection of static methods that

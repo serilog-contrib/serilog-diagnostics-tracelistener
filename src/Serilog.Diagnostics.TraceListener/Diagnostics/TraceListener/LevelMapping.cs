@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 SerilogTraceListener Contributors
+﻿// Copyright 2015-2020 Serilog Contributors
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 using System.Diagnostics;
 using Serilog.Events;
 
-namespace SerilogTraceListener
+namespace Serilog.Diagnostics.TraceListener
 {
     static class LevelMapping
     {

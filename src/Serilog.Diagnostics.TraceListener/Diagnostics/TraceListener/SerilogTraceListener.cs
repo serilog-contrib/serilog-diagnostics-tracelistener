@@ -1,4 +1,4 @@
-﻿// Copyright 2015-2019 SerilogTraceListener Contributors
+﻿// Copyright 2015-2020 Serilog Contributors
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Serilog;
-using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using Serilog.Events;
 
-namespace SerilogTraceListener
+namespace Serilog.Diagnostics.TraceListener
 {
     /// <summary>
     /// TraceListener implementation that directs all output to Serilog.
     /// </summary>
-    public class SerilogTraceListener : TraceListener
+    public class SerilogTraceListener : System.Diagnostics.TraceListener
     {
         const string ActivityIdProperty = "ActivityId";
         const string CategoryProperty = "Category";

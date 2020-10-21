@@ -6,15 +6,16 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SerilogTraceListener.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <Authors>SerilogTraceListener Contributors</Authors>
+    <Authors>Serilog Contributors</Authors>
     <Description>Provides a System.Diagnostics.TraceListener implementation that outputs to Serilog.</Description>
-    <VersionPrefix>3.2.1</VersionPrefix>
-    <AssemblyName>SerilogTraceListener</AssemblyName>
+    <VersionPrefix>0.0.1-pre</VersionPrefix>
+    <AssemblyName>Serilog.Diagnostics.TraceListener</AssemblyName>
+    <RootNamespace>Serilog</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageId>SerilogTraceListener</PackageId>
+    <PackageId>Serilog.Diagnostics.TraceListener</PackageId>
     <PackageTags>serilog</PackageTags>
     <PackageIconUrl>https://serilog.net/images/serilog-community-nuget.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/serilog-trace-listener/SerilogTraceListener</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/serilog/serilog-diagnostics-tracelistener</PackageProjectUrl>
     <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
