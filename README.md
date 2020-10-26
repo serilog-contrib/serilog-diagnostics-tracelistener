@@ -26,7 +26,8 @@ Trace.Listeners.Add(listener);
 This will write the events through the static `Log` class. Alternatively, a specific logger instance can be used instead:
 
 ```csharp
-var listener = new Serilog.Diagnostics.SerilogTraceListener();
+Serilog.ILogger logger = ...
+var listener = new Serilog.Diagnostics.SerilogTraceListener(logger);
 ```
 
 ### Enabling the listener (XML)
