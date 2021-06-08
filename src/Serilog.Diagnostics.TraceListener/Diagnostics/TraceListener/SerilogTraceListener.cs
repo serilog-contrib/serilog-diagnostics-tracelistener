@@ -74,6 +74,14 @@ namespace Serilog.Diagnostics.TraceListener
             _logger = Log.Logger.ForContext("SourceContext", context);
         }
 
+        /// <summary>
+        ///     Returns the logger which SerilogTraceListener uses.
+        /// </summary>
+        public ILogger GetLogger()
+        {
+            return _logger;
+        }
+
         /// <inheritdoc />
         public override bool IsThreadSafe => true;
 
